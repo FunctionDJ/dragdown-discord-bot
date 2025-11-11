@@ -1,0 +1,16 @@
+{
+  "type": "module",
+  "scripts": {
+    "start": "tsx --env-file=.env main",
+    "deploy-commands": "tsx --env-file=.env deploy-commands"
+  },
+  "packageManager": "pnpm@10.20.0",
+  "dependencies": {
+    "@types/turndown": "^5.0.6",
+    "discord.js": "^14.24.2",
+    "htmlparser2": "^10.0.0",
+    "tsx": "^4.20.6",
+    "turndown": "^7.2.2",
+    "typescript": "^5.9.3"
+  }
+}
