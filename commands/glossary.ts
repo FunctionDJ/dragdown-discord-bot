@@ -28,7 +28,7 @@ interface CargoGlossaryEntry {
 }
 
 const fetchGlossary = async (term: string) => {
-  const result = (await dragdown.cargo({
+  const result = (await dragdown.cargoquery({
     tables: ["Glossary_PPlus"],
     fields: [
       "Glossary_PPlus.term",
@@ -147,7 +147,7 @@ export default {
     },
   },
   async autocomplete(interaction) {
-    const result = (await dragdown.cargo({
+    const result = (await dragdown.cargoquery({
       tables: ["Glossary_PPlus"],
       fields: ["Glossary_PPlus.term"],
       where: `Glossary_PPlus.term LIKE '%${interaction.options.getString(
