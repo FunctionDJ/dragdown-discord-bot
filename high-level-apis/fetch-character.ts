@@ -1,5 +1,5 @@
 import z from "zod";
-import { fetchJSON } from "../fetch-json";
+import { fetchJSON } from "../util/fetch-json";
 
 export const fetchCharacter = async (name: string) => {
 	const json = await fetchJSON("https://dragdown.wiki/w/api.php", {

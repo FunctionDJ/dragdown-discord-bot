@@ -1,10 +1,10 @@
 import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
-import { fetchCharacter } from "../util/apis/fetch-character";
-import { fetchCharacterStats } from "../util/apis/fetch-character-stats";
-import { fetchWikitext } from "../util/apis/fetch-wikitext";
-import { searchPageByTitle } from "../util/apis/search-page-by-title";
+import { fetchCharacter } from "../high-level-apis/fetch-character";
+import { fetchCharacterStats } from "../high-level-apis/fetch-character-stats";
+import { fetchStockIconURL } from "../high-level-apis/fetch-stock-icon-url";
+import { fetchWikitext } from "../low-level-apis/fetch-wikitext";
+import { searchPageByTitle } from "../low-level-apis/search-page-by-title";
 import type { Command } from "../util/command";
-import { fetchStockIconURL } from "../util/apis/fetch-stock-icon-url";
 
 export default {
 	data: new SlashCommandBuilder()
@@ -58,7 +58,7 @@ export default {
 		);
 
 		await interaction.respond(
-			result.map((entry) => ({ name: entry.title, value: entry.title }))
+			result.map((entry) => ({ name: entry, value: entry }))
 		);
 	},
 } satisfies Command;

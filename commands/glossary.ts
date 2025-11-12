@@ -9,8 +9,8 @@ import {
 import {
 	fetchFullGlossaryEntry,
 	type GlossaryEntry,
-} from "../util/apis/fetch-full-glossary-entry";
-import { fetchGlossaryAutocomplete } from "../util/apis/fetch-glossary-autocomplete";
+} from "../high-level-apis/fetch-full-glossary-entry";
+import { fetchGlossaryAutocomplete } from "../high-level-apis/fetch-glossary-autocomplete";
 import { type Command } from "../util/command";
 import { wikiToMarkdown } from "../util/wiki-to-markdown";
 
