@@ -1,0 +1,5 @@
+{
+	"oxc.typeAware": true,
+	"editor.insertSpaces": false,
+	"typescript.preferences.preferTypeOnlyAutoImports": true
+}

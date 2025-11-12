@@ -1,64 +1,64 @@
 import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
-import { fetchCharacter } from "../util/apis/fetchCharacter";
-import { fetchCharacterStats } from "../util/apis/fetchCharacterStats";
-import { fetchWikitext } from "../util/apis/fetchWikitext";
-import { searchPageByTitle } from "../util/apis/searchPageByTitle";
-import { Command } from "../util/command";
-import { loginAndGetDragdownCached } from "../util/dragdown";
-
-const dragdown = await loginAndGetDragdownCached();
+import { fetchCharacter } from "../util/apis/fetch-character";
+import { fetchCharacterStats } from "../util/apis/fetch-character-stats";
+import { fetchWikitext } from "../util/apis/fetch-wikitext";
+import { searchPageByTitle } from "../util/apis/search-page-by-title";
+import type { Command } from "../util/command";
+import { fetchStockIconURL } from "../util/apis/fetch-stock-icon-url";
 
 export default {
-  data: new SlashCommandBuilder()
-    .setName("character")
-    .setDescription("Lookup basic character info")
-    .addStringOption((option) =>
-      option
-        .setName("name")
-        .setDescription("The character to look up")
-        .setRequired(true)
-        .setAutocomplete(true)
-    ),
-  async execute(interaction) {
-    const pageName = interaction.options.getString("name")!;
+	data: new SlashCommandBuilder()
+		.setName("character")
+		.setDescription("Lookup basic character info")
+		.addStringOption((option) =>
+			option
+				.setName("name")
+				.setDescription("The character to look up")
+				.setRequired(true)
+				.setAutocomplete(true)
+		),
+	async execute(interaction) {
+		const pageName = interaction.options.getString("name")!;
 
-    const [_interactionResponse, character, wikitext, stats] =
-      await Promise.all([
-        interaction.deferReply(),
-        fetchCharacter(pageName),
-        fetchWikitext(pageName),
-        fetchCharacterStats(pageName),
-      ]);
+		const [_interactionResponse, character, wikitext, stats, stockIcon] =
+			await Promise.all([
+				interaction.deferReply(),
+				fetchCharacter(pageName),
+				fetchWikitext(pageName),
+				fetchCharacterStats(pageName),
+				fetchStockIconURL(pageName),
+			]);
 
-    const summaryRegex = /\|summary=([^|]*)?\|/gms.exec(wikitext);
-    const summary = summaryRegex?.[1].trim().slice(0, 100);
+		const summaryRegex = /\|summary=([^|]*)?\|/gms.exec(wikitext);
+		const summary = summaryRegex?.[1].trim().slice(0, 100);
 
-    if (character === null) {
-      await interaction.editReply(`\`${pageName}\` could not be found.`);
-      return;
-    }
+		if (character === null) {
+			await interaction.editReply(`\`${pageName}\` could not be found.`);
+			return;
+		}
 
-    const page = Object.values(character.query.pages)[0];
+		const [page] = Object.values(character.query.pages);
 
-    // useful: https://embed.dan.onl/
-    const embed = new EmbedBuilder()
-      .setAuthor({
-        name: page.title,
-        url: `https://dragdown.wiki/wiki/${page.title}`,
-      })
-      .setDescription("**" + page.title.split("/")[1] + "** " + summary)
-      .addFields(stats)
-      .setThumbnail(page.thumbnail.source);
+		// useful: https://embed.dan.onl/
+		const embed = new EmbedBuilder()
+			.setAuthor({
+				name: page.title,
+				url: `https://dragdown.wiki/wiki/${page.title}`,
+				iconURL: stockIcon,
+			})
+			.setDescription(`**${page.title.split("/")[1]}** ${summary}`)
+			.addFields(stats)
+			.setThumbnail(page.thumbnail.source);
 
-    await interaction.editReply({ embeds: [embed] });
-  },
-  async autocomplete(interaction) {
-    const result = await searchPageByTitle(
-      interaction.options.getString("name")!
-    );
+		await interaction.editReply({ embeds: [embed] });
+	},
+	async autocomplete(interaction) {
+		const result = await searchPageByTitle(
+			interaction.options.getString("name")!
+		);
 
-    await interaction.respond(
-      result.map((e) => ({ name: e.title, value: e.title }))
-    );
-  },
+		await interaction.respond(
+			result.map((entry) => ({ name: entry.title, value: entry.title }))
+		);
+	},
 } satisfies Command;
