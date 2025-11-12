@@ -26,6 +26,9 @@ importers:
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
+      zod:
+        specifier: ^4.1.12
+        version: 4.1.12
 
 packages:
 
@@ -338,6 +341,9 @@ packages:
       utf-8-validate:
         optional: true
 
+  zod@4.1.12:
+    resolution: {integrity: sha512-JInaHOamG8pt5+Ey8kGmdcAcg3OL9reK8ltczgHTAwNhMys/6ThXHityHxVV2p3fkw/c+MAvBHFVYHFZDmjMCQ==}
+
 snapshots:
 
   '@discordjs/builders@1.13.0':
@@ -606,3 +612,5 @@ snapshots:
   undici@6.21.3: {}
 
   ws@8.18.3: {}
+
+  zod@4.1.12: {}

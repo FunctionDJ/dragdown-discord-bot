@@ -12,6 +12,13 @@ import { wikiToMarkdown } from "../util/wikiToMarkdown";
 
 const dragdown = await loginAndGetDragdownCached();
 
+/**
+ * TODO
+ * - support for games other than P+
+ * - search also in alias field, not just term
+ * - nicer error/not-found replies with glossary page link
+ */
+
 interface CargoGlossaryEntry {
   title: {
     term: string;
@@ -20,7 +27,7 @@ interface CargoGlossaryEntry {
   };
 }
 
-export const fetchGlossary = async (term: string) => {
+const fetchGlossary = async (term: string) => {
   const result = (await dragdown.cargo({
     tables: ["Glossary_PPlus"],
     fields: [
@@ -40,7 +47,7 @@ export const fetchGlossary = async (term: string) => {
   return result;
 };
 
-export const glossaryComponents = (entry: CargoGlossaryEntry) => {
+const glossaryComponents = (entry: CargoGlossaryEntry) => {
   const container = new ContainerBuilder()
     .setAccentColor(0x0099ff)
     .addTextDisplayComponents((textDisplay) =>
@@ -73,6 +80,7 @@ export default {
         .setName("term")
         .setDescription("The term to look up")
         .setRequired(true)
+        .setAutocomplete(true)
     ),
   async execute(interaction) {
     await interaction.deferReply();
@@ -85,31 +93,71 @@ export default {
         interaction.options.getString("term")?.toLowerCase()
     );
 
-    if (exactMatch === undefined || result.length > 1) {
-      const select = new StringSelectMenuBuilder()
-        .setCustomId("glossary-select")
-        .setPlaceholder("Pick a search result")
-        .addOptions(
-          result.map((entry) =>
-            new StringSelectMenuOptionBuilder()
-              .setLabel(entry.title.term)
-              .setDescription(wikiToMarkdown(entry.title.summary).slice(0, 100))
-              .setValue(entry.title.term)
-          )
-        );
+    if (result.length === 0) {
+      await interaction.editReply(
+        `\`${interaction.options.getString("term")}\` could not be found.`
+      );
+      return;
+    }
 
+    if (exactMatch !== undefined || result.length === 1) {
       await interaction.editReply({
-        components: [
-          new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select),
-        ],
+        components: glossaryComponents(exactMatch ?? result[0]),
+        flags: MessageFlags.IsComponentsV2,
       });
 
       return;
     }
 
+    const select = new StringSelectMenuBuilder()
+      .setCustomId("glossary-select")
+      .setPlaceholder("Pick a search result")
+      .addOptions(
+        result.map((entry) =>
+          new StringSelectMenuOptionBuilder()
+            .setLabel(entry.title.term)
+            .setDescription(wikiToMarkdown(entry.title.summary).slice(0, 100))
+            .setValue(entry.title.term)
+        )
+      );
+
     await interaction.editReply({
-      components: glossaryComponents(exactMatch ?? result[0]),
-      flags: MessageFlags.IsComponentsV2,
+      components: [
+        new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select),
+      ],
     });
+  },
+  stringSelectMenu: {
+    customId: "glossary-select",
+    async execute(interaction) {
+      await interaction.deferUpdate();
+      const entry = await fetchGlossary(interaction.values[0]);
+
+      if (entry.length === 0) {
+        await interaction.editReply(
+          `\`${interaction.values[0]}\` could not be found.`
+        );
+        return;
+      }
+
+      await interaction.editReply({
+        components: glossaryComponents(entry[0]),
+        flags: MessageFlags.IsComponentsV2,
+      });
+    },
+  },
+  async autocomplete(interaction) {
+    const result = (await dragdown.cargo({
+      tables: ["Glossary_PPlus"],
+      fields: ["Glossary_PPlus.term"],
+      where: `Glossary_PPlus.term LIKE '%${interaction.options.getString(
+        "term"
+      )}%'`,
+      limit: 25,
+    })) as { title: { term: string } }[];
+
+    await interaction.respond(
+      result.map((c) => ({ name: c.title.term, value: c.title.term }))
+    );
   },
 } satisfies Command;

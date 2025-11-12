@@ -1,32 +1,36 @@
-import { Client, GatewayIntentBits, MessageFlags } from "discord.js";
+import { Client, GatewayIntentBits } from "discord.js";
 import { getCommands } from "./util/getCommands";
-import { fetchGlossary, glossaryComponents } from "./commands/glossary";
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 const commands = await getCommands();
 
-client.on("interactionCreate", async (interaction) => {
-  if (
-    interaction.isStringSelectMenu() &&
-    interaction.customId === "glossary-select"
-  ) {
-    await interaction.deferUpdate();
-    const entry = await fetchGlossary(interaction.values[0]);
+client.on("interactionCreate", (interaction) => {
+  if (interaction.isAutocomplete()) {
+    const command = commands.find(
+      (c) => c.data.name === interaction.commandName
+    );
 
-    await interaction.editReply({
-      components: glossaryComponents(entry[0]),
-      flags: MessageFlags.IsComponentsV2,
-    });
-
+    command?.autocomplete?.(interaction);
     return;
   }
 
-  if (!interaction.isChatInputCommand()) {
+  if (interaction.isStringSelectMenu()) {
+    const command = commands.find(
+      (c) => c.stringSelectMenu?.customId === interaction.customId
+    );
+
+    command?.stringSelectMenu?.execute(interaction);
     return;
   }
 
-  const command = commands.find((c) => c.data.name === interaction.commandName);
-  command?.execute(interaction);
+  if (interaction.isChatInputCommand()) {
+    const command = commands.find(
+      (c) => c.data.name === interaction.commandName
+    );
+
+    command?.execute(interaction);
+    return;
+  }
 });
 
 client.login(process.env.DISCORD_TOKEN);
