@@ -1,21 +1,24 @@
 {
-  "type": "module",
-  "scripts": {
-    "start": "tsx --env-file=.env main",
-    "deploy-commands": "tsx --env-file=.env deploy-commands"
-  },
-  "packageManager": "pnpm@10.20.0",
-  "devDependencies": {
-    "@types/turndown": "^5.0.6",
-    "discord.js": "^14.24.2",
-    "oxlint": "^1.28.0",
-    "oxlint-tsgolint": "^0.6.0",
-    "tsx": "^4.20.6",
-    "turndown": "^7.2.2",
-    "typescript": "^5.9.3",
-    "zod": "^4.1.12"
-  },
-  "prettier": {
-    "useTabs": true
-  }
+	"type": "module",
+	"scripts": {
+		"start": "tsx --env-file=.env main",
+		"deploy-commands": "tsx --env-file=.env deploy-commands",
+		"lint": "oxlint"
+	},
+	"packageManager": "pnpm@10.20.0",
+	"devDependencies": {
+		"@types/turndown": "^5.0.6",
+		"discord.js": "^14.24.2",
+		"html-entities": "^2.6.0",
+		"mwbot-ts": "^1.3.2",
+		"oxlint": "^1.28.0",
+		"oxlint-tsgolint": "^0.6.0",
+		"tsx": "^4.20.6",
+		"turndown": "^7.2.2",
+		"typescript": "^5.9.3",
+		"zod": "^4.1.12"
+	},
+	"prettier": {
+		"useTabs": true
+	}
 }

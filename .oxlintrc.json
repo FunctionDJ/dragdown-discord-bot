@@ -12,7 +12,8 @@
 		"id-length": ["error", { "exceptions": ["z"] }],
 		"sort-imports": "off",
 		"sort-keys": "off",
-		"no-magic-numbers": "off"
+		"no-magic-numbers": "off",
+		"no-map-spread": "off"
 	},
 	"env": {
 		"node": true

@@ -1,5 +1,4 @@
-import z from "zod";
-import { fetchJSON } from "../util/fetch-json";
+import { mw } from "./mw";
 
 const twentyFourHours = 24 * 60 * 60 * 1000;
 
@@ -12,29 +11,10 @@ const fetchCharacterListCached = async () => {
 		return cache.data;
 	}
 
-	const json = await fetchJSON("https://dragdown.wiki/w/api.php", {
-		action: "query",
-		list: "categorymembers",
-		cmtitle: "Category:Playable Character",
-		cmlimit: 500,
-		cmnamespace: 0, // mainspace
-		cmtype: "page",
-	});
+	const response = await mw.getCategoryMembers("Category:Playable Character");
 
-	const schema = z.object({
-		query: z.object({
-			categorymembers: z.array(
-				z.object({
-					title: z.string(),
-				})
-			),
-		}),
-	});
-
-	const parsed = schema.parse(json);
-
-	const withoutCharacterSubPages = parsed.query.categorymembers
-		.map((page) => page.title)
+	const withoutCharacterSubPages = response
+		.map((page) => page.title!)
 		.filter((title) => !/.*\/.*\/.*/gm.test(title));
 
 	cache = { timestamp: now, data: withoutCharacterSubPages };
