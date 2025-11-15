@@ -1,7 +1,7 @@
 import type { ApplicationCommandOptionChoiceData } from "discord.js";
 import z from "zod";
-import { cargoExport } from "../low-level-apis/cargo-export";
-import { glossaryGame, sanitizeForGlossaryQuery } from "./glossary-shared";
+import { cargoExport } from "../../util/cargo-export";
+import { glossaryGame } from "./glossary-shared";
 
 const entrySchema = z.object({
 	term: z.string().or(z.number()),
@@ -18,9 +18,8 @@ export const fetchGlossaryAutocomplete = async (term: string) => {
 			const results = await cargoExport({
 				tables: [`Glossary_${game}`],
 				fields: Object.keys(entrySchema.shape),
-				where: `term LIKE '%${sanitizeForGlossaryQuery(
-					term
-				)}%' OR alias HOLDS LIKE '%${sanitizeForGlossaryQuery(term)}%'`,
+				where: (san) =>
+					san`term LIKE ${`%${term}%`} OR alias HOLDS LIKE ${`%${term}%`}`,
 				/**
 				 * max for autocomplete, though we're querying all glossaries,
 				 * so total will often be >25 which we need to trim later,

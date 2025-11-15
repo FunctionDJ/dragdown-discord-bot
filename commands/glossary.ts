@@ -9,9 +9,9 @@ import {
 	getGlossaryGameByCaseInsensitive,
 	type GlossaryEntry,
 	type GlossaryGame,
-} from "../high-level-apis/fetch-full-glossary-entry";
-import { fetchGlossaryAutocomplete } from "../high-level-apis/fetch-glossary-autocomplete";
-import { glossaryGame } from "../high-level-apis/glossary-shared";
+} from "./glossary-utils/fetch-full-glossary-entry";
+import { fetchGlossaryAutocomplete } from "./glossary-utils/fetch-glossary-autocomplete";
+import { glossaryGame } from "./glossary-utils/glossary-shared";
 import { type Command } from "../util/command";
 import { wikiToMarkdown } from "../util/wiki-to-markdown";
 import { ellipsis } from "../util/ellipsis";

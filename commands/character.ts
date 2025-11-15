@@ -1,8 +1,8 @@
 import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
-import { fetchCharacterStats } from "../high-level-apis/fetch-character-stats";
-import { fileToStaticURL } from "../low-level-apis/file-to-static-url";
-import { mw } from "../low-level-apis/mw";
-import { searchPageByTitle } from "../low-level-apis/search-page-by-title";
+import { fetchCharacterStats } from "./character-utils/fetch-character-stats";
+import { fileToStaticURL } from "../util/file-to-static-url";
+import { mw } from "../util/mw";
+import { searchPageByTitle } from "../util/search-page-by-title";
 import type { Command } from "../util/command";
 import { ellipsis } from "../util/ellipsis";
 import { spacer } from "../util/spacer";
@@ -52,31 +52,17 @@ export default {
 					.filter((title) => !title.endsWith("/Data") && title !== pageName)
 			);
 
-		const [
-			_interactionResponse,
-			wikitext,
-			stats,
-			subPages,
-			// htmlDocument,
-		] = await Promise.all([
-			interaction.deferReply(),
-			wikitextPromise,
-			fetchCharacterStats(pageName),
-			subPagesPromise,
-			// fetchHTML(pageName),
-		]);
+		const [_interactionResponse, wikitext, stats, subPages] = await Promise.all(
+			[
+				interaction.deferReply(),
+				wikitextPromise,
+				fetchCharacterStats(pageName),
+				subPagesPromise,
+			]
+		);
 
 		const summaryRegex = /\|summary=([^|]*)?\|/gms.exec(wikitext!);
 		const summary = ellipsis(500, summaryRegex?.[1].trim()!);
-
-		// const htmlBasedStats: APIEmbedField[] = [];
-
-		// htmlDocument(".CharaInfoLabel").each((_num, elem) => {
-		// 	htmlBasedStats.push({
-		// 		name: htmlDocument(elem).text().trim(),
-		// 		value: htmlDocument(elem).next().text().trim(),
-		// 	});
-		// });
 
 		// useful: https://embed.dan.onl/
 		const embed = new EmbedBuilder()

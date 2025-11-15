@@ -1,6 +1,6 @@
 import type { APIEmbedField } from "discord.js";
 import z from "zod";
-import { cargoExport } from "../low-level-apis/cargo-export";
+import { cargoExport } from "../../util/cargo-export";
 
 const fetchStatsGeneric = async ({
 	character,
@@ -14,7 +14,7 @@ const fetchStatsGeneric = async ({
 	const json = await cargoExport({
 		tables: [`${tablePrefix}_CharacterData`],
 		fields: numberFields,
-		where: `chara = '${character}'`,
+		where: (san) => san`chara = ${character}`,
 	});
 
 	const schema = z.array(z.record(z.enum(numberFields), z.number())).length(1);
@@ -77,7 +77,7 @@ const ssbu = async (character: string) => {
 	const json = await cargoExport({
 		tables: ["SSBU_CharacterData"],
 		fields: Object.keys(entrySchema.shape),
-		where: `chara = '${character}'`,
+		where: (san) => san`chara = ${character}`,
 	});
 
 	const schema = z.array(entrySchema).length(1);

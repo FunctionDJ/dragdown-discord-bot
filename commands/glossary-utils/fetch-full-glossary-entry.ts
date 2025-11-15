@@ -1,6 +1,6 @@
 import z from "zod";
-import { cargoExport } from "../low-level-apis/cargo-export";
-import { glossaryGame, sanitizeForGlossaryQuery } from "./glossary-shared";
+import { cargoExport } from "../../util/cargo-export";
+import { glossaryGame } from "./glossary-shared";
 
 export type GlossaryGame = (typeof glossaryGame)[number];
 
@@ -25,9 +25,8 @@ export const fetchFullGlossaryEntry = async (
 	const result = await cargoExport({
 		tables: [`Glossary_${getGlossaryGameByCaseInsensitive(game)}`],
 		fields: Object.keys(glossaryEntrySchema.shape),
-		where: `term LIKE '%${sanitizeForGlossaryQuery(
-			term
-		)}%' or alias HOLDS LIKE '%${sanitizeForGlossaryQuery(term)}%'`,
+		where: (san) =>
+			san`term LIKE ${`%${term}%`} OR alias HOLDS LIKE ${`%${term}%`}`,
 		limit: 100,
 	});
 

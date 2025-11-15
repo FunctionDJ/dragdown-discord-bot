@@ -5,7 +5,7 @@ import crypto from "node:crypto";
  * @param {string} page a file name like "PPlus_Ike_Portrait.png".
  */
 export const fileToStaticURL = (page: string) => {
-	const withUnderscores = page.replaceAll(" ", "_");
+	const withUnderscores = page.replaceAll(" ", "_").replaceAll("/", "_");
 	const md5 = crypto.hash("md5", withUnderscores);
 	const firstChar = md5.slice(0, 1);
 	const firstTwoChars = md5.slice(0, 2);

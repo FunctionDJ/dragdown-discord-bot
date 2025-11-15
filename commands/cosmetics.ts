@@ -1,21 +1,19 @@
 import {
 	MediaGalleryBuilder,
+	MediaGalleryItemBuilder,
 	MessageFlags,
 	SlashCommandBuilder,
 } from "discord.js";
-import { fileToStaticURL } from "../low-level-apis/file-to-static-url";
-import { mw } from "../low-level-apis/mw";
-import { searchPageByTitle } from "../low-level-apis/search-page-by-title";
+import { fileToStaticURL } from "../util/file-to-static-url";
+import { mw } from "../util/mw";
+import { searchPageByTitle } from "../util/search-page-by-title";
 import { type Command } from "../util/command";
 
 /**
  * TODO
- * right now i'm getting images by just crudely scraping and parsing wikitext.
- * ideally, the images would be stored in cargo.
- * i don't really know how to make a nicer interface in discord because parsing the wikitext for
- * how the costumes are sectioned would be painful and fragile.
+ * i don't really know how to make a nicer interface in discord right now.
  * so right now it just dumps the first 10 (discord limit) [[File:whatever]]
- * that it finds between "== Cosmetics ==" and the next level-2-header on the characters page.
+ * that it finds in the "== Cosmetics ==" section.
  */
 
 export default {
@@ -57,7 +55,9 @@ export default {
 		});
 
 		const gallery = new MediaGalleryBuilder().addItems(
-			first10Costumes.map((costume) => (item) => item.setURL(costume)) // try not to think about it. discord.js.
+			first10Costumes.map(
+				(costume) => new MediaGalleryItemBuilder({ media: { url: costume } })
+			)
 		);
 
 		await interaction.editReply({
